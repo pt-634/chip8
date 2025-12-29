@@ -55,7 +55,7 @@ void chip8_reset(Chip_Context *chip8);
  * Loads ROM into memory and sets pc to the start of it
  * Exits with an error if ROM too large to be loaded
  */
-void chip8_load_rom(Chip_Context *chip8, const unsigned char *bytes, unsigned short len);
+int chip8_load_rom(Chip_Context *chip8, const unsigned char *bytes, unsigned short len);
 
 /**
  * Processes the next instruction in memory and updates the state accordingly

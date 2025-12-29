@@ -36,7 +36,7 @@ unsigned char FONTSET[80] =
 void chip8_reset(Chip_Context *chip8) {
     // Memory
     // - zero it out
-    // - store the fontset in mem[0x050..0x09F]
+    // - store the fontset in mem[0x050..0x09F] (as for why its not just started at 0x0... god knows... he might not even know neither real talk smh)
     // - the rest of the bottom of the memory doesnt really matter but keep in mind it should remain untouched in the future (?)
     // - maybe just to be funny i put the corresponding code of the original interpreter there lmaoooo. later tho
     for (int i = 0; i < 4096; i++) {
@@ -71,7 +71,7 @@ void chip8_reset(Chip_Context *chip8) {
     clear_display(chip8->screen_buffer);
 }
 
-void chip8_load_rom(Chip_Context *chip8, const unsigned char *bytes, unsigned short len) {
+int chip8_load_rom(Chip_Context *chip8, const unsigned char *bytes, unsigned short len) {
 
     // maybe call a chip reset here?
     chip8_reset(chip8);
@@ -81,8 +81,7 @@ void chip8_load_rom(Chip_Context *chip8, const unsigned char *bytes, unsigned sh
     // - with that being said, i'll just load stuff in starting at 0x200
 
     if (len > 4096 - 0x200) {
-        // figure out how to return an error to the caller (no i/o or killing the process!)
-        return;
+        return 1;
     }
 
     for (int i = 0; i < len; i++) {
@@ -90,6 +89,8 @@ void chip8_load_rom(Chip_Context *chip8, const unsigned char *bytes, unsigned sh
     }
 
     chip8->pc = 0x200;
+
+    return 0;
 }
 
 

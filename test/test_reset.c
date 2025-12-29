@@ -33,8 +33,8 @@ int test_reset() {
 
 int main() {
     printf("testing reset... ");
-    if (test_reset()) {
-        printf("PASSED");
+    if (test_reset() == 0) {
+        printf("PASSED\n");
         return 0;
     } else {
         return 1;
