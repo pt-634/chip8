@@ -1,4 +1,29 @@
+#include <stdlib.h>
+#include <stdio.h> // for debugging
 #include "chip8.h"
+
+
+// for debugging
+void chip8_print_screen_buffer(const unsigned char screen_buffer[32][8]) {
+    printf("================================ SCREEN ================================\n");
+
+    for (int y = 0; y < 32; y++) {
+        for (int byte = 0; byte < 8; byte++) {
+            unsigned char b = screen_buffer[y][byte];
+
+            // print bits MSB -> LSB (left -> right)
+            for (int bit = 7; bit >= 0; bit--) {
+                putchar((b & (1 << bit)) ? '1' : '0');
+            }
+        }
+        putchar('\n');
+    }
+
+    printf("=======================================================================\n\n");
+}
+
+
+
 
 
 void clear_display(unsigned char screen_buffer[32][8]) {
@@ -122,13 +147,16 @@ Decoded_Inst decode(unsigned short inst) {
 
 // (TODO) implement
 unsigned char rng() {
-    return 0xFF; // this thing is just gonna get anded w kk and be kk for now
+    return rand();
 }
 
 // display a sprite on the screen
 // returns 1 if any pixels are erased as a result, 0 otherwise
 // behavior undefined for n >= 16
 int display_sprite(unsigned char screen_buffer[32][8], unsigned char * sprite, unsigned char x_coord, unsigned char y_coord, unsigned int n) {
+    // debugging
+    //printf("xcoord = %d, ycoord = %d, n = %d\n", x_coord, y_coord, n);
+
     // (TODO) describe implementation here
     // location (x,y), where y indicates the row, and x indicates the column bit
     int col_byte = x_coord / 8; // the byte containing the column bit x
@@ -152,7 +180,12 @@ int display_sprite(unsigned char screen_buffer[32][8], unsigned char * sprite, u
         unsigned char new_byte_spillover = 0xFF & masked_bytes;
         screen_buffer[row][col_byte] = new_byte;
         screen_buffer[row][col_byte_spillover] = new_byte_spillover;
-
+        
+        // debugging
+        //printf("row = %d\n", row);
+        //printf("original = %x\n", original);
+        //printf("spritemask = %x\n", sprite_mask);
+        
         // (TODO) explain how this works
         if ((original & sprite_mask) != 0) erased = 1;
     }
@@ -431,6 +464,11 @@ void chip8_step(Chip_Context *chip8, const int keypad[16]) {
             // If this causes any pixels to be erased, VF is set to 1, otherwise it is set to 0.
             // If the sprite is positioned so part of it is outside the coordinates of the display,
             // it wraps around to the opposite side of the screen.
+
+            // debugging
+            //printf("\n------- drawing --------\n");
+            //printf("I = %x\n", chip8->I);
+            
             chip8->V[0xF] = display_sprite(
                 chip8->screen_buffer,
                 &(chip8->mem[chip8->I]),
@@ -438,6 +476,13 @@ void chip8_step(Chip_Context *chip8, const int keypad[16]) {
                 chip8->V[decoded_inst.y],
                 decoded_inst.n
             );
+            //printf("erased = %d\n", chip8->V[0xF]);
+            //printf("\n\n");
+            
+            //chip8_print_screen_buffer(chip8->screen_buffer);
+
+            //printf("\n\n");
+            //printf("------------------------\n\n");
             break;
         }
         case 0xE: {
